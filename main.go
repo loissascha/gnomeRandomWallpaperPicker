@@ -1,20 +1,43 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 )
 
 func main() {
-	startPath, err := os.UserHomeDir()
+	var startPathFlag string
+	var durationFlag int
+
+	flag.StringVar(&startPathFlag, "path", "", "The path where random wallpapers should be picked from")
+	flag.IntVar(&durationFlag, "duration", 300, "The duration in which the wallpaper should change. Default is 300 seconds.")
+
+	flag.Parse()
+
+	if startPathFlag == "" {
+		fmt.Println("Please provide a -path flag!")
+		return
+	}
+
+	fmt.Println(startPathFlag)
+	fmt.Println(durationFlag)
+
+	userDir, err := os.UserHomeDir()
 	if err != nil {
 		panic("cant get user dir")
 	}
-	startPath += "/Pictures/randomWallpaper"
+
+	for strings.Contains(startPathFlag, "~") {
+		startPathFlag = strings.Replace(startPathFlag, "~", userDir, 1)
+	}
+
+	startPathFlag = strings.TrimSuffix(startPathFlag, "/")
 
 	var wg sync.WaitGroup
 
@@ -22,14 +45,18 @@ func main() {
 	go func() {
 		defer wg.Done()
 		for true {
-			result := getAllFilesFromDir(startPath)
+			result := getAllFilesFromDir(startPathFlag)
+			if len(result) == 0 {
+				time.Sleep(time.Duration(durationFlag) * time.Second)
+				continue
+			}
 			randomIndex := rand.Intn(len(result))
 			fmt.Println("Next background:", result[randomIndex])
 			cmd := exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri-dark \"file://"+result[randomIndex]+"\"")
 			cmd.Run()
 			cmd = exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri \"file://"+result[randomIndex]+"\"")
 			cmd.Run()
-			time.Sleep(300 * time.Second)
+			time.Sleep(time.Duration(durationFlag) * time.Second)
 		}
 	}()
 
