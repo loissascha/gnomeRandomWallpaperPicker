@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"os/exec"
 	"sync"
 	"time"
 )
@@ -23,15 +24,16 @@ func main() {
 		for true {
 			result := getAllFilesFromDir(startPath)
 			randomIndex := rand.Intn(len(result))
-			fmt.Println(result[randomIndex])
-			time.Sleep(2 * time.Second)
+			fmt.Println("Next background:", result[randomIndex])
+			cmd := exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri-dark \"file://"+result[randomIndex]+"\"")
+			cmd.Run()
+			cmd = exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri \"file://"+result[randomIndex]+"\"")
+			cmd.Run()
+			time.Sleep(300 * time.Second)
 		}
 	}()
 
-	fmt.Println("Waiting for goroutine to finish...")
 	wg.Wait()
-	fmt.Println("All goroutines finished!")
-
 }
 
 func getAllFilesFromDir(path string) []string {
