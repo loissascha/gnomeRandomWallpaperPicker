@@ -14,11 +14,19 @@ import (
 func main() {
 	var startPathFlag string
 	var durationFlag int
+	var engineFlag string
 
 	flag.StringVar(&startPathFlag, "path", "", "The path where random wallpapers will be picked from")
 	flag.IntVar(&durationFlag, "duration", 300, "(Optional) The duration in which the wallpaper should change.")
+	flag.StringVar(&engineFlag, "engine", "gnome", "Wallpaper engine. Possible options: Gnome, swww. Default: Gnome")
 
 	flag.Parse()
+
+	engineFlag = strings.ToLower(engineFlag)
+	if engineFlag == "" {
+		fmt.Println("Please provide a valid -engine flag!")
+		return
+	}
 
 	if startPathFlag == "" {
 		fmt.Println("Please provide a -path flag!")
@@ -52,10 +60,19 @@ func main() {
 			}
 			randomIndex := rand.Intn(len(result))
 			fmt.Println("Next background:", result[randomIndex])
-			cmd := exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri-dark \"file://"+result[randomIndex]+"\"")
-			cmd.Run()
-			cmd = exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri \"file://"+result[randomIndex]+"\"")
-			cmd.Run()
+
+			switch engineFlag {
+			case "gnome":
+				cmd := exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri-dark \"file://"+result[randomIndex]+"\"")
+				cmd.Run()
+				cmd = exec.Command("bash", "-c", "gsettings set org.gnome.desktop.background picture-uri \"file://"+result[randomIndex]+"\"")
+				cmd.Run()
+				break
+			case "swww":
+				cmd := exec.Command("bash", "-c", "swww img "+result[randomIndex])
+				cmd.Run()
+				break
+			}
 			time.Sleep(time.Duration(durationFlag) * time.Second)
 		}
 	}()
