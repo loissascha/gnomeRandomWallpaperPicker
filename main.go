@@ -15,8 +15,8 @@ func main() {
 	var startPathFlag string
 	var durationFlag int
 
-	flag.StringVar(&startPathFlag, "path", "", "The path where random wallpapers should be picked from")
-	flag.IntVar(&durationFlag, "duration", 300, "The duration in which the wallpaper should change. Default is 300 seconds.")
+	flag.StringVar(&startPathFlag, "path", "", "The path where random wallpapers will be picked from")
+	flag.IntVar(&durationFlag, "duration", 300, "(Optional) The duration in which the wallpaper should change.")
 
 	flag.Parse()
 
