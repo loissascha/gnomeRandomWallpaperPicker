@@ -1,3 +1,3 @@
-module github.com/loissascha/goRandomWallpaperPicker
+module github.com/loissascha/gnomeRandomWallpaperPicker
 
 go 1.23.0
