@@ -72,6 +72,10 @@ func main() {
 				cmd := exec.Command("bash", "-c", "swww img "+result[randomIndex])
 				cmd.Run()
 				break
+			case "plasma":
+				cmd := exec.Command("bash", "-c", "qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \" var Desktops = desktops(); for (i = 0; i < Desktops.length; i++) { d = Desktops[i]; d.wallpaperPlugin = 'org.kde.image'; d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General'); d.writeConfig('Image', 'file://"+result[randomIndex]+"') }\"")
+				cmd.Run()
+				break
 			}
 			time.Sleep(time.Duration(durationFlag) * time.Second)
 		}
